@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
-const userModel = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -33,10 +34,8 @@ const userModel = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
-
 // Pre-save hook to hash password before saving to database
-userSchema.pre("save", async (next) => {
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
     const salt = await bcrypt.genSalt(10);
@@ -48,8 +47,10 @@ userSchema.pre("save", async (next) => {
 });
 
 // method for comparing password
-userSchema.methods.comparePassword = async (password) => {
+userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
+
+const User = mongoose.model("User", userSchema);
 
 export default User;
