@@ -108,3 +108,36 @@ export const logout = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+export const refreshToken = async (req, res) => {
+  try {
+    const refreshtoken = req.cookies.refreshToken;
+    if (!refreshtoken)
+      return res.status(401).json({ message: "No refresh token provided" });
+
+    const decoded = jwt.verify(refreshtoken, process.env.REFRESH_TOKEN);
+    const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
+
+    if (storedToken !== refreshtoken)
+      return res.status(401).json({ message: "Invalid refersh token" });
+
+    const accessToken = jwt.sign(
+      { userId: decoded.userId },
+      process.env.ACCESS_TOKEN,
+      {
+        expiresIn: "15m",
+      }
+    );
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true, //prevents xss attacks i.e cross-site scripting
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", //prevents CSRF attacks i.e.cross-site request forgery
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.json({ message: "Token refreshed successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
