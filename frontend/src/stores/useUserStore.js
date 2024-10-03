@@ -44,6 +44,7 @@ export const useUserStore = create((set, get) => ({
     try {
       await axios.post("/auth/logout");
       set({ user: null });
+      toast.success("Logged out Successfully")
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Error occurred during logout"
