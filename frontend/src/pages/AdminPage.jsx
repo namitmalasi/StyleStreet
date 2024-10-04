@@ -1,13 +1,11 @@
 import { BarChart, PlusCircle, ShoppingBasket } from "lucide-react";
 import { useState } from "react";
 import CreateProductForm from "../components/CreateProductForm";
-import AnalyticsTab from "../components/AnalyticsTab";
 import ProductsList from "../components/ProductsList";
 
 const tabs = [
   { id: "create", label: "Create Product", icon: PlusCircle },
   { id: "products", label: "Products", icon: ShoppingBasket },
-  { id: "analytics", label: "Analytics", icon: BarChart },
 ];
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("create");
@@ -35,7 +33,6 @@ const AdminPage = () => {
         </div>
         {activeTab === "create" && <CreateProductForm />}
         {activeTab === "products" && <ProductsList />}
-        {activeTab === "analytics" && <AnalyticsTab />}
       </div>
     </div>
   );
