@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PlusCircle, Upload, Loader } from "lucide-react";
+import { useProductStore } from "../stores/useProductStore";
 
 const categories = [
   "jeans",
@@ -20,10 +21,29 @@ const CreateProductForm = () => {
     image: "",
   });
 
-  const loading = false;
+  const { createProduct, loading } = useProductStore();
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewProduct({ ...newProduct, image: reader.result });
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      await createProduct(newProduct);
+      setNewProduct({ name: "", description: "", price: "", category: "" });
+    } catch (error) {
+      console.log("error creating product", error.message);
+    }
   };
   return (
     <div className="bg-gray-800 shadow-lg rounded-lg p-8 mb-8 max-w-xl mx-auto">
@@ -133,7 +153,7 @@ const CreateProductForm = () => {
             id="image"
             className="sr-only"
             accept="image/*"
-            // onChange={handleImageChange}
+            onChange={handleImageChange}
           />
           <label
             htmlFor="image"
