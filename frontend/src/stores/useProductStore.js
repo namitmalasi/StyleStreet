@@ -21,4 +21,49 @@ export const useProductStore = create((set) => ({
       set({ loading: false });
     }
   },
+  fetchAllProducts: async () => {
+    set({ loading: true });
+    try {
+      const res = await axios.get("/products");
+      set({ products: res.data.Products, loading: false });
+    } catch (error) {
+      set({ error: "failed to fetch Products", loading: false });
+      toast.error(error.response.data.error || "Failed to fetch products");
+    }
+  },
+  deleteProduct: async (productId) => {
+    set({ loading: true });
+
+    try {
+      await axios.delete(`/products/${productId}`);
+
+      set((prevProducts) => ({
+        products: prevProducts.products.filter(
+          (product) => product._id !== productId
+        ),
+        loading: false,
+      }));
+    } catch (error) {
+      set({ error: "failed to delete Products", loading: false });
+      toast.error(error.response.data.error || "Failed to delete products");
+    }
+  },
+  toggleFeaturedProduct: async (productId) => {
+    set({ loading: true });
+
+    try {
+      const res = await axios.patch(`/products/${productId}`);
+      set((prevProducts) => ({
+        products: prevProducts.products.map((product) =>
+          product._id === productId
+            ? { ...product, isFeatured: res.data.isFeatured }
+            : product
+        ),
+        loading: false,
+      }));
+    } catch (error) {
+      set({ error: "toggle featured product error", loading: false });
+      toast.error(error.response.data.error || "toggle featured product error");
+    }
+  },
 }));
