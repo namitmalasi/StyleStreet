@@ -3,6 +3,7 @@ import { useCartStore } from "../stores/useCartStore";
 import { Link } from "react-router-dom";
 import CartItem from "../components/CartItem";
 import PeopleAlsoBought from "../components/PeopleAlsoBought";
+import OrderSummary from "../components/OrderSummary";
 
 const CartPage = () => {
   const { cart } = useCartStore();
@@ -23,11 +24,11 @@ const CartPage = () => {
             {cart.length > 0 && <PeopleAlsoBought />}
           </div>
 
-          {/* {cart.length > 0 && (
+          {cart.length > 0 && (
             <div className="mx-auto mt-6 max-w-4xl flex-1 space-y-6 lg:mt-0 lg:w-full">
               <OrderSummary />
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </div>
