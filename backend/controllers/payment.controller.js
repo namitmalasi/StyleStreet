@@ -1,5 +1,6 @@
 import { stripe } from "../lib/stripe.js";
 import Order from "../models/order.model.js";
+import User from "../models/user.model.js";
 
 export const createCheckoutSession = async (req, res) => {
   try {
@@ -26,6 +27,7 @@ export const createCheckoutSession = async (req, res) => {
           },
           unit_amount: amount,
         },
+        quantity: product.quantity || 1,
       };
     });
 
@@ -36,7 +38,7 @@ export const createCheckoutSession = async (req, res) => {
       success_url: `${process.env.CLIENT_URL}/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL}/purchase-cancel`,
       metadata: {
-        userId: req.user_id.toString(),
+        userId: req.user._id.toString(),
         products: JSON.stringify(
           products.map((p) => ({
             id: p._id,
@@ -59,13 +61,13 @@ export const createCheckoutSession = async (req, res) => {
 export const checkoutSuccess = async (req, res) => {
   try {
     const { sessionId } = req.body;
-    const session = await stripe.checkout.retrieve(sessionId);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid") {
       // create new order
       const products = JSON.parse(session.metadata.products);
       const order = new Order({
-        user: session.metadata.id,
+        user: session.metadata.userId,
         products: products.map((product) => ({
           product: product.id,
           quantity: product.quantity,
@@ -75,6 +77,12 @@ export const checkoutSuccess = async (req, res) => {
         stripeSessionId: sessionId,
       });
       await order.save();
+
+      const user = await User.findById(req.user._id);
+      if (user) {
+        user.cartItems = [];
+        await user.save();
+      }
       res.status(200).json({
         success: true,
         message: "Payment successful and order created",
