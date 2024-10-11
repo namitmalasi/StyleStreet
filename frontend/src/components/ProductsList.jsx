@@ -4,8 +4,6 @@ import { useProductStore } from "../stores/useProductStore";
 const ProductsList = () => {
   const { deleteProduct, toggleFeaturedProduct, products } = useProductStore();
 
-  console.log("products", products);
-
   return (
     <div className="bg-gray-800 shadow-lg rounded-lg overflow-hidden max-w-4xl mx-auto">
       <table className=" min-w-full divide-y divide-gray-700">
