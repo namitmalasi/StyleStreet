@@ -22,7 +22,3 @@
 - Express
 - MongoDB
 - TailwindCSS
-
-# Links
-
-- Live : [StyleStreet](https://stylestreet-qi81.onrender.com/)
